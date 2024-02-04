@@ -25,7 +25,7 @@ router = routers.DefaultRouter()
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    #path('', include('vehiculos.urls')),
+    path('', include('vehiculos.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # YOUR PATTERNS
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
