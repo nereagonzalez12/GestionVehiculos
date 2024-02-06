@@ -1,8 +1,7 @@
-from rest_framework.decorators import api_view
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, viewsets
-from rest_framework.reverse import reverse
-from rest_framework import renderers
 from rest_framework import permissions
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -10,33 +9,15 @@ from vehiculos.models import Vehiculo, Marca
 from vehiculos.serializer import VehiculoSerializer, MarcaSerializer
 
 
-@api_view(['GET'])
-def api_root(request, format=None):
-    return Response({
-        'marcas': reverse('marca-list', request=request, format=format),
-        'vehiculos': reverse('vehiculo-list', request=request, format=format)
-    })
-
-
 # MARCA #
 class MarcaViewSet(viewsets.ModelViewSet):
     """
     This ViewSet automatically provides `list`, `create`, `retrieve`,
     `update` and `destroy` actions.
-
-    Additionally we also provide an extra `highlight` action.
     """
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-    @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
-    def highlight(self, request, *args, **kwargs):
-        marca = self.get_object()
-        return Response(marca.highlighted)
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
 
 
 # VEHICULO #
@@ -45,18 +26,26 @@ class VehiculoViewSet(viewsets.ModelViewSet):
     """
     This ViewSet automatically provides `list`, `create`, `retrieve`,
     `update` and `destroy` actions.
-
-    Additionally we also provide an extra `highlight` action.
     """
     queryset = Vehiculo.objects.all()
     serializer_class = VehiculoSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # Filtros Django Filter
+    filter_backends = DjangoFilterBackend
+    # Forma rápida
+    filterset_fields = ['marca']
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name='marca', description='Filtro por marca', require=False, type=str)
+        ]
+    )
+    # Filtrar por marca // por query
+    @action(detail=False, methods=['GET'], description='Filtrado por marca get parametro')
+    def filtro_marca(self, request):
+        vehiculos_marca = Vehiculo.object.all()
+        marca = self.request.query_params.get('marca')
+        if (marca):
+            vehiculos_marca = vehiculos_marca.filter(marca__nombre=marca)
 
-    @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
-    def highlight(self, request, *args, **kwargs):
-        vehiculo = self.get_object()
-        return Response(vehiculo.highlighted)
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
+        serializer = self.get_serializer(vehiculos_marca, many=True)
+        return Response(serializer.data)

@@ -17,3 +17,5 @@ drf-spectacular
 #Serializer
 pygments
 httpie
+#Filtros
+django-filter

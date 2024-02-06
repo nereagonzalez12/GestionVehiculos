@@ -8,13 +8,10 @@ La serialización en DRF se utiliza para convertir datos complejos, como objetos
 pueda ser fácilmente representado y consumido, como JSON.
 """
 
-
 class MarcaSerializer(serializers.HyperlinkedModelSerializer):
-    highlight = serializers.HyperlinkedIdentityField(view_name='marca-highlight', format='html')
-
-    class Meta:
+      class Meta:
         model = Marca
-        fields = ['nombre', 'highlight']
+        fields = ['nombre', 'url']
 
 
 class VehiculoSerializer(serializers.HyperlinkedModelSerializer):
@@ -23,5 +20,5 @@ class VehiculoSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Vehiculo
         fields = ['tipo_vehiculo', 'color', 'marca', 'chasis', 'modelo', 'fecha_matriculacion',
-                  'fecha_fabricacion', 'fecha_baja', 'matricula', 'suspendido']
+                  'fecha_fabricacion', 'fecha_baja', 'matricula', 'suspendido', 'url']
 
