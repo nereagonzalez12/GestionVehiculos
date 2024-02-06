@@ -1,14 +1,13 @@
 from django.urls import path, include
-
+from rest_framework.routers import DefaultRouter
 from vehiculos import views
 
-urlpatterns = [
-    path('', views.api_root),
-    path('marcas/<int:pk>/highlight/', views.MarcaHighlight.as_view(), name='marca-highlight'),
-    path('vehiculos/<int:pk>/highlight/', views.VehiculoHighlight.as_view(), name='vehiculo-highlight'),
-    path('marcas/', views.MarcaList.as_view(), name='marca-list'),
-    path('marcas/<int:pk>/', views.MarcaDetail.as_view(), name='marca-detail'),
-    path('vehiculos/', views.VehiculoList.as_view(), name='vehiculo-list'),
-    path('vehiculos/<int:pk>/', views.VehiculoDetail.as_view(), name='vehiculo-detail'),
+# Create a router and register our ViewSets with it.
+router = DefaultRouter()
+router.register(r'marcas', views.MarcaViewSet, basename='marca')
+router.register(r'vehiculos', views.VehiculoViewSet, basename='vehiculo')
 
+# The API URLs are now determined automatically by the router.
+urlpatterns = [
+    path('', include(router.urls)),
 ]

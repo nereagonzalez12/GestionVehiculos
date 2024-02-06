@@ -1,8 +1,10 @@
-from rest_framework import status, renderers
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from rest_framework.reverse import reverse
+from rest_framework import renderers
+from rest_framework import permissions
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from vehiculos.models import Vehiculo, Marca
 from vehiculos.serializer import VehiculoSerializer, MarcaSerializer
@@ -17,41 +19,44 @@ def api_root(request, format=None):
 
 
 # MARCA #
-class MarcaList(generics.ListCreateAPIView):
+class MarcaViewSet(viewsets.ModelViewSet):
+    """
+    This ViewSet automatically provides `list`, `create`, `retrieve`,
+    `update` and `destroy` actions.
+
+    Additionally we also provide an extra `highlight` action.
+    """
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-
-class MarcaDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Marca.objects.all()
-    serializer_class = MarcaSerializer
-
-
-class MarcaHighlight(generics.GenericAPIView):
-    queryset = Marca.objects.all()
-    renderer_classes = [renderers.StaticHTMLRenderer]
-
-    def get(self, request, *args, **kwargs):
+    @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
+    def highlight(self, request, *args, **kwargs):
         marca = self.get_object()
         return Response(marca.highlighted)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 # VEHICULO #
 
-class VehiculoList(generics.ListCreateAPIView):
+class VehiculoViewSet(viewsets.ModelViewSet):
+    """
+    This ViewSet automatically provides `list`, `create`, `retrieve`,
+    `update` and `destroy` actions.
+
+    Additionally we also provide an extra `highlight` action.
+    """
     queryset = Vehiculo.objects.all()
     serializer_class = VehiculoSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-
-class VehiculoDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Vehiculo.objects.all()
-    serializer_class = VehiculoSerializer
-
-
-class VehiculoHighlight(generics.GenericAPIView):
-    queryset = Vehiculo.objects.all()
-    renderer_classes = [renderers.StaticHTMLRenderer]
-
-    def get(self, request, *args, **kwargs):
+    @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
+    def highlight(self, request, *args, **kwargs):
         vehiculo = self.get_object()
         return Response(vehiculo.highlighted)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
