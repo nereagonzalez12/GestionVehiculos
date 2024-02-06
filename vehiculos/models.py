@@ -30,7 +30,7 @@ class Vehiculo(models.Model):
     marca = models.ForeignKey(Marca, on_delete=models.CASCADE)
     modelo = models.CharField(max_length=50)
     matricula = models.CharField(max_length=15, unique=True)
-    color = models.IntegerField(max_length=20, choices=Colores)
+    color = models.IntegerField(choices=Colores)
     fecha_fabricacion = models.DateField()
     fecha_matriculacion = models.DateField()
     fecha_baja = models.DateField(null=True, blank=True)

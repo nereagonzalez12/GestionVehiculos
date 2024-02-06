@@ -1,4 +1,4 @@
-from django_filters.rest_framework import DjangoFilterBackend
+import django_filters.rest_framework
 from rest_framework import generics, viewsets
 from rest_framework import permissions
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -31,21 +31,22 @@ class VehiculoViewSet(viewsets.ModelViewSet):
     serializer_class = VehiculoSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     # Filtros Django Filter
-    filter_backends = DjangoFilterBackend
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     # Forma rápida
     filterset_fields = ['marca']
-    @extend_schema(
-        parameters=[
-            OpenApiParameter(name='marca', description='Filtro por marca', require=False, type=str)
-        ]
-    )
-    # Filtrar por marca // por query
-    @action(detail=False, methods=['GET'], description='Filtrado por marca get parametro')
-    def filtro_marca(self, request):
-        vehiculos_marca = Vehiculo.object.all()
-        marca = self.request.query_params.get('marca')
-        if (marca):
-            vehiculos_marca = vehiculos_marca.filter(marca__nombre=marca)
 
-        serializer = self.get_serializer(vehiculos_marca, many=True)
-        return Response(serializer.data)
+    # @extend_schema(
+    #     parameters=[
+    #         OpenApiParameter(name='marca', description='Filtro por marca', required=False, type=str)
+    #     ]
+    # )
+    # # Filtrar por marca // por query
+    # @action(detail=False, methods=['GET'], description='Filtrado por marca get parametro')
+    # def filtro_marca(self, request):
+    #     vehiculos_marca = Vehiculo.object.all()
+    #     marca = self.request.query_params.get('marca')
+    #     if (marca):
+    #         vehiculos_marca = vehiculos_marca.filter(marca__nombre=marca)
+    #
+    #     serializer = self.get_serializer(vehiculos_marca, many=True)
+    #     return Response(serializer.data)
