@@ -9,5 +9,6 @@ router.register(r'vehiculos', views.VehiculoViewSet, basename='vehiculo')
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
+    # path("vehiculos/<str: marca>/", views.VehiculoViewSet.as_view({'get': 'list'})),
     path('', include(router.urls)),
 ]

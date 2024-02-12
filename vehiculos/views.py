@@ -17,7 +17,14 @@ class MarcaViewSet(viewsets.ModelViewSet):
     """
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_permissions(self):
+        permission_classes = []
+        if self.action == 'create':
+            permission_classes = [permissions.isAuthenticated]
+        return [permission() for permission in permission_classes]
 
 
 # VEHICULO #
@@ -35,12 +42,21 @@ class VehiculoViewSet(viewsets.ModelViewSet):
     # Forma rápida
     filterset_fields = ['marca']
 
+    # Por ruta
+    # path("vehiculos/<str: marca>", views.VehiculoViewSet.as_view({'get': 'list'})),
+    def get_queryset(self):
+        marca = self.kwargs.get('marca', None)
+        vehiculos = Vehiculo.objects.all()
+        if marca:
+            vehiculos = vehiculos.filter(marca__nombre=marca)
+        return vehiculos
+
     # @extend_schema(
     #     parameters=[
     #         OpenApiParameter(name='marca', description='Filtro por marca', required=False, type=str)
     #     ]
     # )
-    # # Filtrar por marca // por query
+    # # Filtrar por marca // por query params que debe hacerse con filterset_fields
     # @action(detail=False, methods=['GET'], description='Filtrado por marca get parametro')
     # def filtro_marca(self, request):
     #     vehiculos_marca = Vehiculo.object.all()
